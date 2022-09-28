@@ -36,13 +36,13 @@ BORDER = pygame.Rect(
 # Instantiate objects containing the game sounds
 BULLET_HIT_SOUND = pygame.mixer.Sound(
     os.path.join(
-        "GameAssets",
+        "Assets",
         "Grenade+1.mp3"
     )
 )
 BULLET_FIRE_SOUND = pygame.mixer.Sound(
     os.path.join(
-        "GameAssets",
+        "Assets",
         "Gun+Silencer.mp3"
     )
 )
@@ -80,7 +80,7 @@ YELLOW_SPACESHIP_IMAGE = pygame.transform.rotate(
         pygame.image.load(
             # Load the actual image from the GameAssets folder
             os.path.join(
-                "GameAssets",
+                "Assets",
                 "spaceship_yellow.png"
             )
         ),
@@ -100,7 +100,7 @@ RED_SPACESHIP_IMAGE = pygame.transform.rotate(
         pygame.image.load(
             # Load the actual image from the GameAssets folder
             os.path.join(
-                "GameAssets",
+                "Assets",
                 "spaceship_red.png"
             )
         ),
@@ -115,7 +115,7 @@ RED_SPACESHIP_IMAGE = pygame.transform.rotate(
 BACKGROUND_IMAGE = pygame.transform.scale(
     pygame.image.load(
         os.path.join(
-            "GameAssets",
+            "Assets",
             "space.png"
         )
     ),
