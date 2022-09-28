@@ -36,13 +36,13 @@ BORDER = pygame.Rect(
 # Instantiate objects containing the game sounds
 BULLET_HIT_SOUND = pygame.mixer.Sound(
     os.path.join(
-        "Assets",
+        "GameAssets",
         "Grenade+1.mp3"
     )
 )
 BULLET_FIRE_SOUND = pygame.mixer.Sound(
     os.path.join(
-        "Assets",
+        "GameAssets",
         "Gun+Silencer.mp3"
     )
 )
@@ -80,7 +80,7 @@ YELLOW_SPACESHIP_IMAGE = pygame.transform.rotate(
         pygame.image.load(
             # Load the actual image from the GameAssets folder
             os.path.join(
-                "Assets",
+                "GameAssets",
                 "spaceship_yellow.png"
             )
         ),
@@ -100,7 +100,7 @@ RED_SPACESHIP_IMAGE = pygame.transform.rotate(
         pygame.image.load(
             # Load the actual image from the GameAssets folder
             os.path.join(
-                "Assets",
+                "GameAssets",
                 "spaceship_red.png"
             )
         ),
@@ -115,7 +115,7 @@ RED_SPACESHIP_IMAGE = pygame.transform.rotate(
 BACKGROUND_IMAGE = pygame.transform.scale(
     pygame.image.load(
         os.path.join(
-            "Assets",
+            "GameAssets",
             "space.png"
         )
     ),
@@ -131,9 +131,10 @@ def draw_window(
         red_spaceship,
         on_screen_yellow_bullets,
         on_screen_red_bullets,
-        red_spaceship_health,
-        yellow_spaceship_health
+        yellow_spaceship_health,
+        red_spaceship_health
 ):
+    """Function containing the logic to draw the game window at each frame."""
     # Draw the background
     WINDOW.blit(
         BACKGROUND_IMAGE,
@@ -210,27 +211,23 @@ def handle_yellow_spaceship_movement(
         keys_pressed,
         yellow_spaceship
 ):
-    # Using the WASD keys, the yellow spaceship can be moved, with the only
-    # condition that it stays in the left half of the screen and doesn't go
-    # off-screen.
-    if keys_pressed[pygame.K_a] and yellow_spaceship.x - SPACESHIP_HEIGHT // \
-            2 \
-            - SPACESHIP_VELOCITY > 0:
+    """Function containing the logic to handle the movement of the yellow
+    spaceship. Using the WASD keys, the yellow spaceship can be moved
+    anywhere on the screen, while staying in the left half of the screen and
+    on-screen. To make it look better, I also imposed the condition that the
+    health text area is off-limits as well."""
+    if keys_pressed[pygame.K_a] and yellow_spaceship.x - SPACESHIP_VELOCITY > 0:
         yellow_spaceship.x -= SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_s] \
-            and yellow_spaceship.y + SPACESHIP_HEIGHT // 2 + \
-            SPACESHIP_VELOCITY \
-            < WINDOW_HEIGHT:
+            and yellow_spaceship.y + SPACESHIP_HEIGHT + SPACESHIP_VELOCITY \
+            < WINDOW_HEIGHT - 15:
         yellow_spaceship.y += SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_d] \
-            and yellow_spaceship.x + SPACESHIP_VELOCITY + SPACESHIP_WIDTH // \
-            2 \
-            < BORDER.x:
+            and yellow_spaceship.x + SPACESHIP_VELOCITY + SPACESHIP_WIDTH \
+            < BORDER.x + 15:
         yellow_spaceship.x += SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_w] \
-            and yellow_spaceship.y - SPACESHIP_VELOCITY - SPACESHIP_HEIGHT \
-            // 2 \
-            > 0:
+            and yellow_spaceship.y - SPACESHIP_VELOCITY > 55:
         yellow_spaceship.y -= SPACESHIP_VELOCITY
 
 
@@ -238,23 +235,28 @@ def handle_red_spaceship_movement(
         keys_pressed,
         red_spaceship
 ):
-    # Using the arrow keys, the yellow spaceship can be moved, with the only
-    # condition that it stays in the right half of the screen and doesn't go
-    # off-screen.
-    if keys_pressed[pygame.K_LEFT] and red_spaceship.x - SPACESHIP_VELOCITY - \
-            SPACESHIP_WIDTH // 2 > BORDER.x + BORDER_THICKNESS:
+    """Function containing the logic to handle the movement of the red
+    spaceship. Using the arrow keys, the yellow spaceship can be moved
+    anywhere on the screen, while staying in the right half of the screen and
+    on-screen. To make it look better, I also imposed the condition that the
+    health text area is off-limits as well."""
+    if keys_pressed[pygame.K_LEFT] and red_spaceship.x - SPACESHIP_VELOCITY \
+            > BORDER.x + BORDER_THICKNESS:
+        # Move spaceship to the LEFT
         red_spaceship.x -= SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_DOWN] \
-            and red_spaceship.y + SPACESHIP_HEIGHT // 2 + SPACESHIP_VELOCITY \
-            < WINDOW_HEIGHT:
+            and red_spaceship.y + SPACESHIP_HEIGHT + SPACESHIP_VELOCITY \
+            < WINDOW_HEIGHT - 15:
+        # Move spaceship towards the bottom of the screen
         red_spaceship.y += SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_RIGHT] \
             and red_spaceship.x + SPACESHIP_VELOCITY + SPACESHIP_WIDTH < \
-            WINDOW_WIDTH:
+            WINDOW_WIDTH + 15:
+        # Move spaceship to the RIGHT
         red_spaceship.x += SPACESHIP_VELOCITY
     if keys_pressed[pygame.K_UP] \
-            and red_spaceship.y - SPACESHIP_VELOCITY - SPACESHIP_HEIGHT // 2 \
-            > 0:
+            and red_spaceship.y - SPACESHIP_VELOCITY > 55:
+        # Move spaceship towards the top of the screen
         red_spaceship.y -= SPACESHIP_VELOCITY
 
 
@@ -264,10 +266,11 @@ def handle_bullet_movement(
         yellow_spaceship,
         red_spaceship
 ):
-    # Bullet fired from each spaceship are added to the on-screen bullet lists
-    # and removed if they either hit the other spaceship or go off-screen.
-    # The bullet-spaceship collisions are handled using the colliderect method
-    # as they both are pygame rectangles.
+    """Function that contains the logic to handle bullet movement. Bullets
+    fired from each spaceship are added to the on-screen bullet lists and
+    removed if they either hit the other spaceship or go off-screen.
+    The bullet-spaceship collisions are handled using the collideRect method
+    as they both are pygame rectangles."""
     for bullet in on_screen_yellow_bullets:
         bullet.x += BULLET_VELOCITY
         if red_spaceship.colliderect(bullet):
@@ -288,9 +291,10 @@ def handle_bullet_movement(
 def declare_winner(
         text
 ):
-    # Stop the game and print on the centre of the screen "Yellow/Red wins!"
-    # according to the one who managed to reduce the opponent's health to zero.
-    # The message is displayed for five seconds.
+    """ Function containing the logic to print on the centre of the screen
+    'Yellow/Red Player wins!' according to which one who managed to reduce
+    the opponent's health points to zero. The message is displayed for five
+    seconds."""
     winner_text = WINNER_FONT.render(
         text,
         1,
@@ -308,49 +312,79 @@ def declare_winner(
 
 
 def game_loop():
+    """Main game loop."""
+    # Instantiate the objects representing the spaceships.
     yellow_spaceship = pygame.Rect(100, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
     red_spaceship = pygame.Rect(700, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
     
+    # Initialise the lists that will contain the on-screen bullets fired by
+    # each spaceship.
     on_screen_yellow_bullets = []
     on_screen_red_bullets = []
     
+    # Initialise the spaceship health values.
     yellow_spaceship_health = INITIAL_SPACESHIP_HEALTH
     red_spaceship_health = INITIAL_SPACESHIP_HEALTH
     
+    # Initialise the pygame clock object that will dictate the speed of the
+    # game.
     clock = pygame.time.Clock()
     
-    while True:
+    # Initialise a variable declaring whether the game has yet to be
+    # terminated by the user by closing the game window.
+    running = True
+    
+    while running:
         clock.tick(FRAMES)
+        # Handling breaking the game loop and terminating the process when the
+        # pygame window is closed.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                running = False
                 break
             
+            # Handling firing bullets when either the left control or the
+            # right control button have been pressed. Using the KEYDOWN
+            # event each key press fires one bullet and cannot be held down
+            # to create continuous fire.
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LCTRL and len(
                         on_screen_yellow_bullets) < MAX_ON_SCREEN_BULLETS:
+                    # Draw the bullet in front of the spaceship.
                     bullet = pygame.Rect(
-                        yellow_spaceship.x + SPACESHIP_WIDTH,
-                        yellow_spaceship.y + SPACESHIP_HEIGHT // 2 -
-                        BULLET_HEIGHT // 2,
+                        yellow_spaceship.x + SPACESHIP_WIDTH - 15,
+                        yellow_spaceship.y + SPACESHIP_HEIGHT // 2 +
+                        BULLET_HEIGHT,
                         BULLET_WIDTH,
                         BULLET_HEIGHT
                     )
+                    # Add the bullet to the list of on-screen bullets and
+                    # limit the amount of on-screen bullets to prevent
+                    # continuous firing.
                     on_screen_yellow_bullets.append(bullet)
+                    # Play bullet sound.
                     BULLET_FIRE_SOUND.play()
                 
                 if event.key == pygame.K_RCTRL and len(
                         on_screen_red_bullets) < MAX_ON_SCREEN_BULLETS:
+                    # Draw the bullet in front of the spaceship.
                     bullet = pygame.Rect(
                         red_spaceship.x,
-                        yellow_spaceship.y + SPACESHIP_HEIGHT // 2 -
-                        BULLET_HEIGHT // 2,
+                        red_spaceship.y + SPACESHIP_HEIGHT // 2 +
+                        BULLET_HEIGHT,
                         BULLET_WIDTH,
                         BULLET_HEIGHT
                     )
+                    # Add the bullet to the list of on-screen bullets and
+                    # limit the amount of on-screen bullets to prevent
+                    # continuous firing.
                     on_screen_red_bullets.append(bullet)
+                    # Play bullet sound.
                     BULLET_FIRE_SOUND.play()
             
+            # Reduce spaceship health and play a sound every time a spaceship
+            # is hit by an opponent's bullet.
             if event.type == RED_HIT:
                 red_spaceship_health -= 1
                 BULLET_HIT_SOUND.play()
@@ -359,15 +393,12 @@ def game_loop():
                 yellow_spaceship_health -= 1
                 BULLET_HIT_SOUND.play()
         
-        winner_text = ""
-        if red_spaceship_health <= 0:
-            winner_text = "Yellow Player Wins!"
-        if yellow_spaceship_health <= 0:
-            winner_text = "Red Player Wins!"
-        if winner_text != "":
-            declare_winner(winner_text)
+        # Break the main loop if the game window has been closed.
+        if not running:
             break
         
+        # Capture keyboard key presses and pass those to the functions
+        # handling spaceship movement.
         keys_pressed = pygame.key.get_pressed()
         handle_yellow_spaceship_movement(keys_pressed, yellow_spaceship)
         handle_red_spaceship_movement(keys_pressed, red_spaceship)
@@ -375,6 +406,8 @@ def game_loop():
                                on_screen_red_bullets,
                                yellow_spaceship,
                                red_spaceship)
+        # Redraw the game window at each iteration of the game loop to cover
+        # previous game windows.
         draw_window(
             yellow_spaceship,
             red_spaceship,
@@ -383,8 +416,21 @@ def game_loop():
             yellow_spaceship_health,
             red_spaceship_health
         )
-    
-    game_loop()
+
+        # Call the declare_winner function if the winning condition is
+        # triggered.
+        winner_text = ""
+        if red_spaceship_health <= 0:
+            winner_text = "Yellow Player Wins!"
+        if yellow_spaceship_health <= 0:
+            winner_text = "Red Player Wins!"
+        if winner_text != "":
+            declare_winner(winner_text)
+            break
+    # Restart the game if the main game loop has been broken because of a
+    # win and not because of the window closing.
+    if running:
+        game_loop()
 
 
 if __name__ == "__main__":
